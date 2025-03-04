@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Tracking</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .tab-content { border: 1px solid #ddd; border-top: none; padding: 15px; }
+        .table-responsive { overflow-x: auto; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <select id="brandSelect" class="form-control" onchange="changeBrand()"></select>
+
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="daily-tab" data-toggle="tab" href="#daily" role="tab">Daily Tracking</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="weekly-tab" data-toggle="tab" href="#weekly" role="tab">Weekly Tracking</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="monthly-tab" data-toggle="tab" href="#monthly" role="tab">Monthly Tracking</a>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="daily"></div>
+        <div class="tab-pane fade" id="weekly"></div>
+        <div class="tab-pane fade" id="monthly"></div>
+    </div>
+</div>
+
+<script>
+    const scriptURL = "https://script.google.com/macros/s/YOUR_SCRIPT_DEPLOYMENT_URL/exec";
+
+    async function fetchData(brand = "Baibe Official") {
+        try {
+            const response = await fetch(`${scriptURL}?brand=${encodeURIComponent(brand)}`);
+            const data = await response.json();
+
+            // Populate brand dropdown
+            const brandSelect = document.getElementById("brandSelect");
+            brandSelect.innerHTML = data.brandList.map(b => 
+                `<option value="${b}" ${b === data.currentBrand ? 'selected' : ''}>${b}</option>`
+            ).join('');
+
+            // Update tables
+            document.getElementById("daily").innerHTML = data.dailyTableHtml;
+            document.getElementById("weekly").innerHTML = data.weeklyTableHtml;
+            document.getElementById("monthly").innerHTML = data.monthlyTableHtml;
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    }
+
+    function changeBrand() {
+        const brand = document.getElementById("brandSelect").value;
+        fetchData(brand);
+    }
+
+    // Load initial data
+    fetchData();
+</script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>
