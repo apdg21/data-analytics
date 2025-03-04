@@ -16,11 +16,14 @@
         <div id="dailyTable"></div>
         <div id="weeklyTable"></div>
         <div id="monthlyTable"></div>
+        <button onclick="updateDailyData()">Update Daily Data</button>
     </div>
     <script>
-        const appScriptUrl = "YOUR_APPS_SCRIPT_WEB_APP_URL"; // Replace with your web app URL
+        const appScriptUrl = "https://script.google.com/macros/s/AKfycbzz5NP7wLj-i4s7TW66UEwCXx8MDmKi4BimnJKfHuvo6ZiECVa9bCBm8kl_GpOC5yMc/exec"; // Replace with your web app URL
+        let currentBrand = "Baibe Official"; // initialize current brand.
         function fetchData() {
             let brand = document.getElementById("brandSelect").value;
+            currentBrand = brand; //update current brand
             fetch(appScriptUrl + "?brand=" + brand)
                 .then(response => response.json())
                 .then(data => {
@@ -49,6 +52,38 @@
             tableHtml += '</table></div>';
             return tableHtml;
         }
+
+        function updateDailyData() {
+            // Example data to be sent (replace with your actual data)
+            let newData = [
+                ["Date Sent", "Campaign Name", "Subject", "Open Rate", "Click Rate", "Conversion Rate", "Send Time"],
+                ["2024-01-01", "Campaign A", "Subject A", "50%", "20%", "5%", "10:00 AM"],
+                ["2024-01-02", "Campaign B", "Subject B", "60%", "30%", "10%", "11:00 AM"]
+            ];
+
+            sendDataToAppsScript(currentBrand, "Daily Tracking", newData);
+        }
+
+        function sendDataToAppsScript(brand, sheetName, data) {
+            fetch(appScriptUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ brand: brand, sheetName: sheetName, data: data }),
+            })
+                .then((response) => response.json())
+                .then((result) => {
+                    if (result.success) {
+                        alert("Data updated successfully!");
+                        fetchData(); // Refresh data after update.
+                    } else {
+                        alert("Error: " + result.error);
+                    }
+                })
+                .catch((error) => console.error("Error sending data:", error));
+        }
+
         fetchData(); // Initial load
     </script>
 </body>
