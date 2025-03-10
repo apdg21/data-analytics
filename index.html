@@ -3,7 +3,6 @@
 <head>
     <title>Client Tracking</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -16,13 +15,16 @@
         </select>
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item">
-                <a class="nav-link active" id="daily-tab" data-toggle="tab" href="#daily" role="tab" aria-controls="daily" aria-selected="true">Daily Tracking</a>
+                <a class="nav-link active" id="daily-tab" data-toggle="tab" href="#daily" role="tab" aria-controls="daily"
+                   aria-selected="true">Daily Tracking</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="weekly-tab" data-toggle="tab" href="#weekly" role="tab" aria-controls="weekly" aria-selected="false">Weekly Tracking</a>
+                <a class="nav-link" id="weekly-tab" data-toggle="tab" href="#weekly" role="tab" aria-controls="weekly"
+                   aria-selected="false">Weekly Tracking</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="monthly-tab" data-toggle="tab" href="#monthly" role="tab" aria-controls="monthly" aria-selected="false">Monthly Tracking</a>
+                <a class="nav-link" id="monthly-tab" data-toggle="tab" href="#monthly" role="tab" aria-controls="monthly"
+                   aria-selected="false">Monthly Tracking</a>
             </li>
         </ul>
         <div class="tab-content" id="myTabContent">
@@ -39,14 +41,14 @@
         <button onclick="updateDailyData()">Update Daily Data</button>
     </div>
     <script>
-        const appScriptUrl = "YOUR_APPS_SCRIPT_URL";
+        const appScriptUrl = "https://script.google.com/macros/s/AKfycbxDrq8oxP_Iz6FIoYctvSZ4YLLjnwMKSy70cU0MPt5ORD-y3MsqAUbGjJZDI_mNivV4/exec";
         let currentBrand = "Baibe Official";
-        let activeTab = "daily-tab";
+        let activeTab = "daily-tab"; // Initialize active tab
 
         function fetchData() {
             let brand = document.getElementById("brandSelect").value;
             currentBrand = brand;
-            activeTab = document.querySelector('.nav-link.active').id;
+            activeTab = document.querySelector('.nav-link.active').id; // Store active tab
             fetch(appScriptUrl + "?brand=" + brand)
                 .then(response => response.json())
                 .then(data => {
@@ -54,66 +56,68 @@
                         alert(data.error);
                         return;
                     }
-                    document.getElementById("dailyTable").innerHTML = createTableHtml(data.daily, "dailyTable");
-                    document.getElementById("weeklyTable").innerHTML = createTableHtml(data.weekly, "weeklyTable");
-                    document.getElementById("monthlyTable").innerHTML = createTableHtml(data.monthly, "monthlyTable");
-                    $('#' + activeTab).tab('show');
+                    document.getElementById("dailyTable").innerHTML = createTableHtml(data.daily);
+                    document.getElementById("weeklyTable").innerHTML = createTableHtml(data.weekly);
+                    document.getElementById("monthlyTable").innerHTML = createTableHtml(data.monthly);
+                    $('#' + activeTab).tab('show'); // Restore active tab
                 })
                 .catch(error => console.error("Error fetching data:", error));
         }
 
-        function createTableHtml(data, tableId) {
+        function createTableHtml(data) {
             if (!data || data.length === 0) {
                 return "<p>No data available.</p>";
             }
-            let tableHtml = '<div class="table-responsive"><table class="table table-bordered table-striped" id="' + tableId + '-table"><thead><tr>';
-            for (let i = 0; i < data[0].length; i++) {
-                tableHtml += `<th>${data[0][i]}<br><select class="filter" onchange="filterColumn('${tableId}', ${i}, this)"><option value="">All</option></select></th>`;
-            }
-            tableHtml += '</tr></thead><tbody>';
-            for (let i = 1; i < data.length; i++) {
+            let tableHtml = '<div class="table-responsive"><table class="table table-bordered table-striped">';
+            for (let i = 0; i < data.length; i++) {
                 tableHtml += '<tr>';
                 for (let j = 0; j < data[i].length; j++) {
-                    tableHtml += `<td>${data[i][j]}</td>`;
+                    tableHtml += '<td>' + data[i][j] + '</td>';
                 }
                 tableHtml += '</tr>';
             }
-            tableHtml += '</tbody></table></div>';
-            setTimeout(() => populateFilters(tableId), 100); // Populate filters after rendering
+            tableHtml += '</table></div>';
             return tableHtml;
         }
 
-        function populateFilters(tableId) {
-            let table = document.getElementById(`${tableId}-table`);
-            let filters = table.getElementsByClassName("filter");
-            for (let col = 0; col < filters.length; col++) {
-                let uniqueValues = new Set();
-                let rows = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-                for (let row of rows) {
-                    uniqueValues.add(row.cells[col].textContent);
-                }
-                let select = filters[col];
-                uniqueValues.forEach(value => {
-                    let option = document.createElement("option");
-                    option.textContent = value;
-                    option.value = value;
-                    select.appendChild(option);
-                });
-            }
+        function updateDailyData() {
+            let newData = [
+                ["Date Sent", "Campaign Name", "Subject", "Open Rate", "Click Rate", "Conversion Rate", "Send Time"],
+                ["2024-01-01", "Campaign A", "Subject A", "50%", "20%", "5%", "10:00 AM"],
+                ["2024-01-02", "Campaign B", "Subject B", "60%", "30%", "10%", "11:00 AM"]
+            ];
+            sendDataToAppsScript(currentBrand, "Daily Tracking", newData);
         }
 
-        function filterColumn(tableId, colIndex, select) {
-            let table = document.getElementById(`${tableId}-table`);
-            let rows = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-            let filterValue = select.value;
-            for (let row of rows) {
-                row.style.display = filterValue === "" || row.cells[colIndex].textContent === filterValue ? "" : "none";
-            }
+        function sendDataToAppsScript(brand, sheetName, data) {
+            fetch(appScriptUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ brand: brand, sheetName: sheetName, data: data }),
+            })
+                .then((response) => response.json())
+                .then((result) => {
+                    if (result.success) {
+                        alert("Data updated successfully!");
+                        fetchData();
+                    } else {
+                        alert("Error: " + result.error);
+                    }
+                })
+                .catch((error) => console.error("Error sending data:", error));
         }
 
-        fetchData();
+        fetchData(); // Initial load
     </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(function () {
+            $('#myTab a:first').tab('show');
+        });
+    </script>
 </body>
 </html>
