@@ -15,40 +15,40 @@
         </select>
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item">
-                <a class="nav-link active" id="daily-tab" data-toggle="tab" href="#daily" role="tab" aria-controls="daily"
-                   aria-selected="true">Daily Tracking</a>
+                <a class="nav-link active" id="daily-tab" data-toggle="tab" href="#daily" role="tab" aria-controls="daily" aria-selected="true">Daily Tracking</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="weekly-tab" data-toggle="tab" href="#weekly" role="tab" aria-controls="weekly"
-                   aria-selected="false">Weekly Tracking</a>
+                <a class="nav-link" id="weekly-tab" data-toggle="tab" href="#weekly" role="tab" aria-controls="weekly" aria-selected="false">Weekly Tracking</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="monthly-tab" data-toggle="tab" href="#monthly" role="tab" aria-controls="monthly"
-                   aria-selected="false">Monthly Tracking</a>
+                <a class="nav-link" id="monthly-tab" data-toggle="tab" href="#monthly" role="tab" aria-controls="monthly" aria-selected="false">Monthly Tracking</a>
             </li>
         </ul>
         <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="daily" role="tabpanel" aria-labelledby="daily-tab">
+                <input type="text" class="form-control filter-input" placeholder="Filter..." onkeyup="filterTable('dailyTable', this)">
                 <div id="dailyTable"></div>
             </div>
             <div class="tab-pane fade" id="weekly" role="tabpanel" aria-labelledby="weekly-tab">
+                <input type="text" class="form-control filter-input" placeholder="Filter..." onkeyup="filterTable('weeklyTable', this)">
                 <div id="weeklyTable"></div>
             </div>
             <div class="tab-pane fade" id="monthly" role="tabpanel" aria-labelledby="monthly-tab">
+                <input type="text" class="form-control filter-input" placeholder="Filter..." onkeyup="filterTable('monthlyTable', this)">
                 <div id="monthlyTable"></div>
             </div>
         </div>
         <button onclick="updateDailyData()">Update Daily Data</button>
     </div>
     <script>
-        const appScriptUrl = "https://script.google.com/macros/s/AKfycbxDrq8oxP_Iz6FIoYctvSZ4YLLjnwMKSy70cU0MPt5ORD-y3MsqAUbGjJZDI_mNivV4/exec";
+        const appScriptUrl = "YOUR_APPS_SCRIPT_URL";
         let currentBrand = "Baibe Official";
-        let activeTab = "daily-tab"; // Initialize active tab
+        let activeTab = "daily-tab";
 
         function fetchData() {
             let brand = document.getElementById("brandSelect").value;
             currentBrand = brand;
-            activeTab = document.querySelector('.nav-link.active').id; // Store active tab
+            activeTab = document.querySelector('.nav-link.active').id;
             fetch(appScriptUrl + "?brand=" + brand)
                 .then(response => response.json())
                 .then(data => {
@@ -59,7 +59,7 @@
                     document.getElementById("dailyTable").innerHTML = createTableHtml(data.daily);
                     document.getElementById("weeklyTable").innerHTML = createTableHtml(data.weekly);
                     document.getElementById("monthlyTable").innerHTML = createTableHtml(data.monthly);
-                    $('#' + activeTab).tab('show'); // Restore active tab
+                    $('#' + activeTab).tab('show');
                 })
                 .catch(error => console.error("Error fetching data:", error));
         }
@@ -68,16 +68,30 @@
             if (!data || data.length === 0) {
                 return "<p>No data available.</p>";
             }
-            let tableHtml = '<div class="table-responsive"><table class="table table-bordered table-striped">';
-            for (let i = 0; i < data.length; i++) {
+            let tableHtml = '<div class="table-responsive"><table class="table table-bordered table-striped"><thead><tr>';
+            for (let i = 0; i < data[0].length; i++) {
+                tableHtml += `<th>${data[0][i]}</th>`;
+            }
+            tableHtml += '</tr></thead><tbody>';
+            for (let i = 1; i < data.length; i++) {
                 tableHtml += '<tr>';
                 for (let j = 0; j < data[i].length; j++) {
-                    tableHtml += '<td>' + data[i][j] + '</td>';
+                    tableHtml += `<td>${data[i][j]}</td>`;
                 }
                 tableHtml += '</tr>';
             }
-            tableHtml += '</table></div>';
+            tableHtml += '</tbody></table></div>';
             return tableHtml;
+        }
+
+        function filterTable(tableId, input) {
+            let filter = input.value.toLowerCase();
+            let table = document.getElementById(tableId).getElementsByTagName("table")[0];
+            let rows = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+            for (let row of rows) {
+                let text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? "" : "none";
+            }
         }
 
         function updateDailyData() {
@@ -92,13 +106,11 @@
         function sendDataToAppsScript(brand, sheetName, data) {
             fetch(appScriptUrl, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ brand: brand, sheetName: sheetName, data: data }),
             })
-                .then((response) => response.json())
-                .then((result) => {
+                .then(response => response.json())
+                .then(result => {
                     if (result.success) {
                         alert("Data updated successfully!");
                         fetchData();
@@ -106,18 +118,13 @@
                         alert("Error: " + result.error);
                     }
                 })
-                .catch((error) => console.error("Error sending data:", error));
+                .catch(error => console.error("Error sending data:", error));
         }
 
-        fetchData(); // Initial load
+        fetchData();
     </script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-        $(function () {
-            $('#myTab a:first').tab('show');
-        });
-    </script>
 </body>
 </html>
