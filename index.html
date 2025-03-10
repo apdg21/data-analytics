@@ -8,28 +8,28 @@
     <div class="container">
         <h1>Client Tracking</h1>
         
-        <!-- Brand Selection -->
-        <select id="brandSelect" class="form-control" onchange="fetchData()">
-            <option value="Baibe Official">Baibe Official</option>
-            <option value="Nupe Mall">Nupe Mall</option>
-            <option value="Blooming Body">Blooming Body</option>
-            <option value="DayB">DayB</option>
-        </select>
-
-        <!-- Date Range Filters -->
-        <div class="row mt-3">
-            <div class="col">
-                <label>Start Date:</label>
-                <input type="date" id="startDate" class="form-control" onchange="fetchData()">
-            </div>
-            <div class="col">
-                <label>End Date:</label>
-                <input type="date" id="endDate" class="form-control" onchange="fetchData()">
-            </div>
+        <div class="form-group">
+            <label for="brandSelect">Select Brand:</label>
+            <select id="brandSelect" class="form-control" onchange="fetchData()">
+                <option value="Baibe Official">Baibe Official</option>
+                <option value="Nupe Mall">Nupe Mall</option>
+                <option value="Blooming Body">Blooming Body</option>
+                <option value="DayB">DayB</option>
+            </select>
         </div>
 
-        <!-- Navigation Tabs -->
-        <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
+        <!-- Date Filters -->
+        <div class="form-group">
+            <label for="startDate">Start Date:</label>
+            <input type="date" id="startDate" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="endDate">End Date:</label>
+            <input type="date" id="endDate" class="form-control">
+        </div>
+        <button class="btn btn-primary" onclick="fetchData()">Filter Data</button>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item">
                 <a class="nav-link active" id="daily-tab" data-toggle="tab" href="#daily" role="tab" aria-controls="daily"
                    aria-selected="true">Daily Tracking</a>
@@ -44,8 +44,7 @@
             </li>
         </ul>
 
-        <!-- Data Display Sections -->
-        <div class="tab-content mt-3" id="myTabContent">
+        <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="daily" role="tabpanel" aria-labelledby="daily-tab">
                 <div id="dailyTable"></div>
             </div>
@@ -57,8 +56,6 @@
             </div>
         </div>
 
-        <!-- Update Data Button -->
-        <button class="btn btn-primary mt-3" onclick="updateDailyData()">Update Daily Data</button>
     </div>
 
     <script>
@@ -70,9 +67,9 @@
             let startDate = document.getElementById("startDate").value;
             let endDate = document.getElementById("endDate").value;
             
-            let url = `${appScriptUrl}?brand=${brand}`;
-            if (startDate) url += `&startDate=${startDate}`;
-            if (endDate) url += `&endDate=${endDate}`;
+            let url = `${appScriptUrl}?brand=${encodeURIComponent(brand)}`;
+            if (startDate) url += `&startDate=${encodeURIComponent(startDate)}`;
+            if (endDate) url += `&endDate=${encodeURIComponent(endDate)}`;
 
             fetch(url)
                 .then(response => response.json())
@@ -104,41 +101,13 @@
             return tableHtml;
         }
 
-        function updateDailyData() {
-            let newData = [
-                ["Date Sent", "Campaign Name", "Subject", "Open Rate", "Click Rate", "Conversion Rate", "Send Time"],
-                ["2024-01-01", "Campaign A", "Subject A", "50%", "20%", "5%", "10:00 AM"],
-                ["2024-01-02", "Campaign B", "Subject B", "60%", "30%", "10%", "11:00 AM"]
-            ];
-            sendDataToAppsScript(currentBrand, "Daily Tracking", newData);
-        }
+        fetchData(); // Load initial data
 
-        function sendDataToAppsScript(brand, sheetName, data) {
-            fetch(appScriptUrl, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ brand: brand, sheetName: sheetName, data: data }),
-            })
-                .then((response) => response.json())
-                .then((result) => {
-                    if (result.success) {
-                        alert("Data updated successfully!");
-                        fetchData();
-                    } else {
-                        alert("Error: " + result.error);
-                    }
-                })
-                .catch((error) => console.error("Error sending data:", error));
-        }
-
-        fetchData(); // Initial load
     </script>
 
-    <!-- Bootstrap & jQuery Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 </body>
 </html>
