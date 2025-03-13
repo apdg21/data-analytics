@@ -7,7 +7,7 @@
 
     <style>
         body {
-            background-color: #f4f4f4; /* Light grey background */
+            background-color: #f4f4f4;
             padding: 20px;
         }
         .container {
@@ -18,18 +18,18 @@
             max-width: 1400px;
             width: 100%;
             margin: 0 auto;
-            overflow: scroll; 
+            overflow: auto;
         }
         .form-group {
-            max-width: 50%; /* Smaller width for form elements */
+            max-width: 50%;
             margin-bottom: 20px;
         }
         .table-responsive {
-            overflow-x: auto; /* Enables horizontal scrolling if needed */
-            max-width: 100%; /* Ensures responsiveness */
+            overflow-x: auto;
+            max-width: 100%;
         }
         .table th {
-            background-color: #007bff; /* Blue header background */
+            background-color: #007bff;
             color: white;
             font-weight: bold;
         }
@@ -44,27 +44,26 @@
         }
         .nav-tabs .nav-link.active {
             background-color: #007bff;
-            color: white;            
+            color: white;
         }
         .nav {
             margin-top: 50px;
         }
         th, td {
-            width: 100px; /* Keep column width fixed */
-            max-width: 100px; /* Prevents expansion */
-            word-wrap: break-word; /* Ensures long words break */
-            white-space: normal; /* Allows multi-line text */
-            overflow-wrap: break-word; /* Alternative word wrapping */
-            text-overflow: ellipsis; /* Truncates text with "..." */
-            vertical-align: top; /* Aligns text properly */
-        }    
-
+            width: 100px;
+            max-width: 100px;
+            word-wrap: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+            text-overflow: ellipsis;
+            vertical-align: top;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Client Tracking</h1>
-        
+
         <div class="form-group">
             <label for="brandSelect">Select Brand:</label>
             <select id="brandSelect" class="form-control" onchange="fetchData()">
@@ -76,7 +75,6 @@
             </select>
         </div>
 
-        <!-- Date Filters -->
         <div class="form-group">
             <label for="startDate">Start Date:</label>
             <input type="date" id="startDate" class="form-control">
@@ -90,15 +88,15 @@
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item">
                 <a class="nav-link active" id="daily-tab" data-toggle="tab" href="#daily" role="tab" aria-controls="daily"
-                   aria-selected="true">Daily Tracking</a>
+                    aria-selected="true">Daily Tracking</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="weekly-tab" data-toggle="tab" href="#weekly" role="tab" aria-controls="weekly"
-                   aria-selected="false">Weekly Tracking</a>
+                    aria-selected="false">Weekly Tracking</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="monthly-tab" data-toggle="tab" href="#monthly" role="tab" aria-controls="monthly"
-                   aria-selected="false">Monthly Tracking</a>
+                    aria-selected="false">Monthly Tracking</a>
             </li>
         </ul>
 
@@ -121,100 +119,93 @@
         let currentBrand = "Baibe Official";
 
         function fetchData() {
-    let brand = document.getElementById("brandSelect").value;
-    if (!brand) {
-        console.log("No brand selected, skipping fetch.");
-        return; 
-    }
-    let brand = document.getElementById("brandSelect").value;
-    let startDate = document.getElementById("startDate").value;
-    let endDate = document.getElementById("endDate").value;
-    
-    let url = `${appScriptUrl}?brand=${encodeURIComponent(brand)}`;
-    if (startDate) url += `&startDate=${encodeURIComponent(startDate)}`;
-    if (endDate) url += `&endDate=${encodeURIComponent(endDate)}`;
-
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                alert(data.error);
+            let brand = document.getElementById("brandSelect").value;
+            if (!brand) {
+                console.log("No brand selected, skipping fetch.");
                 return;
             }
+            let startDate = document.getElementById("startDate").value;
+            let endDate = document.getElementById("endDate").value;
 
-            // Clear and recreate tables
-            document.getElementById("dailyTable").innerHTML = createTableHtml(data.daily);
-            document.getElementById("weeklyTable").innerHTML = createTableHtml(data.weekly);
-            document.getElementById("monthlyTable").innerHTML = createTableHtml(data.monthly);
+            let url = `<span class="math-inline">\{appScriptUrl\}?brand\=</span>{encodeURIComponent(brand)}`;
+            if (startDate) url += `&startDate=${encodeURIComponent(startDate)}`;
+            if (endDate) url += `&endDate=${encodeURIComponent(endDate)}`;
 
-            // Destroy existing DataTables instances before re-initializing
-            $('#dailyTable table, #weeklyTable table, #monthlyTable table').each(function() {
-    if ($.fn.DataTable.isDataTable(this)) {
-        $(this).DataTable().clear().destroy(); // Clear and destroy safely
-    }
-});
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
 
+                    document.getElementById("dailyTable").innerHTML = createTableHtml(data.daily);
+                    document.getElementById("weeklyTable").innerHTML = createTableHtml(data.weekly);
+                    document.getElementById("monthlyTable").innerHTML = createTableHtml(data.monthly);
 
-            // Reinitialize DataTables
-            $('#dailyTable table, #weeklyTable table, #monthlyTable table').DataTable({
-                "paging": true,
-                "searching": true,
-                "ordering": true,
-                "order": [], // No default sorting
-                "lengthMenu": [10, 25, 50, 100] // Allows users to choose number of rows
-            });
-        })
-        .catch(error => console.error("Error fetching data:", error));
-    }
+                    <span class="math-inline">\('\#dailyTable table, \#weeklyTable table, \#monthlyTable table'\)\.each\(function\(\) \{
+if \(</span>.fn.DataTable.isDataTable(this)) {
+                            $(this).DataTable().destroy();
+                        }
+                    });
 
+                    $('#dailyTable table').DataTable({
+                        "paging": true,
+                        "searching": true,
+                        "ordering": true,
+                        "order": [],
+                        "lengthMenu": [10, 25, 50, 100]
+                    });
+                    $('#weeklyTable table').DataTable({
+                        "paging": true,
+                        "searching": true,
+                        "ordering": true,
+                        "order": [],
+                        "lengthMenu": [10, 25, 50, 100]
+                    });
+                    $('#monthlyTable table').DataTable({
+                        "paging": true,
+                        "searching": true,
+                        "ordering": true,
+                        "order": [],
+                        "lengthMenu": [10, 25, 50, 100]
+                    });
+                })
+                .catch(error => console.error("Error fetching data:", error));
+        }
 
         function createTableHtml(data) {
-   if (!data || data.length === 0 || !data[0]) {
-    return "<p>No data available.</p>";
-}
+            if (!data || data.length === 0 || !data[0]) {
+                return "<p>No data available.</p>";
+            }
 
+            let tableHtml = '<div class="table-responsive"><table class="table table-bordered table-striped">';
 
-    let tableHtml = '<div class="table-responsive"><table class="table table-bordered table-striped">';
+            tableHtml += '<thead><tr>';
+            for (let j = 0; j < data[0].length; j++) {
+                tableHtml += '<th>' + data[0][j] + '</th>';
+            }
+            tableHtml += '</tr></thead>';
 
-    // Add table head (first row as headers)
-    tableHtml += '<thead><tr>';
-    for (let j = 0; j < data[0].length; j++) {
-        tableHtml += '<th>' + data[0][j] + '</th>';
-    }
-    tableHtml += '</tr></thead>';
+            tableHtml += '<tbody>';
+            for (let i = 1; i < data.length; i++) {
+                tableHtml += '<tr>';
+                for (let j = 0; j < data[i].length; j++) {
+                    tableHtml += '<td>' + data[i][j] + '</td>';
+                }
+                tableHtml += '</tr>';
+            }
+            tableHtml += '</tbody></table></div>';
 
-    // Add table body
-    tableHtml += '<tbody>';
-    for (let i = 1; i < data.length; i++) { // Skip header row
-        tableHtml += '<tr>';
-        for (let j = 0; j < data[i].length; j++) {
-            tableHtml += '<td>' + data[i][j] + '</td>';
+            return tableHtml;
         }
-        tableHtml += '</tr>';
-    }
-    tableHtml += '</tbody></table></div>';
 
-    return tableHtml;
-}
-
-        fetchData(); // Load initial data
+        fetchData();
 
         function cleanData(data) {
-            return data.map(row => row.map(cell => cell.trim())); // Trim spaces
+            return data.map(row => row.map(cell => cell.trim()));
         }
-
     </script>
 
-    
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script type="text/javascript">var scrolltotop={setting:{startline:100,scrollto:0,scrollduration:1e3,fadeduration:[500,100]},controlHTML:'<img src="https://lh3.googleusercontent.com/pw/AM-JKLUaGTR-I_j7yALietsiX8_Ap2-bbHETDqEHwdaYcnUQtCWKNFANbLPJmzWmovJNOw6P7FE4ICP-Od573beQPSMK4XmYRsUvMrot4zC1CHjtj-bTUARsIcO-PdgUOqEfg0XMxmaB8Tqe5s8ys-ZhKrsb=s45-no" />',controlattrs:{offsetx:5,offsety:5},anchorkeyword:"#top",state:{isvisible:!1,shouldvisible:!1},scrollup:function(){this.cssfixedsupport||this.$control.css({opacity:0});var t=isNaN(this.setting.scrollto)?this.setting.scrollto:parseInt(this.setting.scrollto);t="string"==typeof t&&1==jQuery("#"+t).length?jQuery("#"+t).offset().top:0,this.$body.animate({scrollTop:t},this.setting.scrollduration)},keepfixed:function(){var t=jQuery(window),o=t.scrollLeft()+t.width()-this.$control.width()-this.controlattrs.offsetx,s=t.scrollTop()+t.height()-this.$control.height()-this.controlattrs.offsety;this.$control.css({left:o+"px",top:s+"px"})},togglecontrol:function(){var t=jQuery(window).scrollTop();this.cssfixedsupport||this.keepfixed(),this.state.shouldvisible=t>=this.setting.startline?!0:!1,this.state.shouldvisible&&!this.state.isvisible?(this.$control.stop().animate({opacity:1},this.setting.fadeduration[0]),this.state.isvisible=!0):0==this.state.shouldvisible&&this.state.isvisible&&(this.$control.stop().animate({opacity:0},this.setting.fadeduration[1]),this.state.isvisible=!1)},init:function(){jQuery(document).ready(function(t){var o=scrolltotop,s=document.all;o.cssfixedsupport=!s||s&&"CSS1Compat"==document.compatMode&&window.XMLHttpRequest,o.$body=t(window.opera?"CSS1Compat"==document.compatMode?"html":"body":"html,body"),o.$control=t('<div id="topcontrol">'+o.controlHTML+"</div>").css({position:o.cssfixedsupport?"fixed":"absolute",bottom:o.controlattrs.offsety,right:o.controlattrs.offsetx,opacity:0,cursor:"pointer"}).attr({title:"Scroll to Top"}).click(function(){return o.scrollup(),!1}).appendTo("body"),document.all&&!window.XMLHttpRequest&&""!=o.$control.text()&&o.$control.css({width:o.$control.width()}),o.togglecontrol(),t('a[href="'+o.anchorkeyword+'"]').click(function(){return o.scrollup(),!1}),t(window).bind("scroll resize",function(t){o.togglecontrol()})})}};scrolltotop.init();</script>
-    <noscript>Not seeing a <a href="https://www.scrolltotop.com/">Scroll to Top Button</a>? Go to our FAQ page for more info.</noscript>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-
-
-</body>
-</html>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core
