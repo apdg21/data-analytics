@@ -23,8 +23,8 @@
             margin-bottom: 20px;
         }
         .table-responsive {
-            width: 100%; /* Full width for tables */
-            padding: 10px;
+            overflow-x: auto; /* Enables horizontal scrolling if needed */
+            max-width: 100%; /* Ensures responsiveness */
         }
         .table th {
             background-color: #007bff; /* Blue header background */
@@ -48,9 +48,14 @@
             margin-top: 50px;
         }
         th, td {
-            width: 100px; /* Each column gets an equal width */
-            overflow: hidden;
-            text-overflow: ellipsis;
+            width: 100px; /* Fixed width per column */
+            word-wrap: break-word; /* Ensures text wraps */
+            white-space: normal; /* Allows multi-line text */
+            overflow: hidden; /* Prevents text overflow */
+            text-align: left; /* Keeps text aligned nicely */
+            vertical-align: top; /* Ensures proper positioning */
+            padding: 8px; /* Adds some spacing */
+
         }
 
     </style>
