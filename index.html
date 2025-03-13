@@ -48,15 +48,14 @@
             margin-top: 50px;
         }
         th, td {
-            width: 100px; /* Fixed width per column */
-            word-wrap: break-word; /* Ensures text wraps */
+            width: 100px; /* Keep column width fixed */
+            max-width: 100px; /* Prevents expansion */
+            word-wrap: break-word; /* Ensures long words break */
             white-space: normal; /* Allows multi-line text */
-            overflow: hidden; /* Prevents text overflow */
-            text-align: left; /* Keeps text aligned nicely */
-            vertical-align: top; /* Ensures proper positioning */
-            padding: 8px; /* Adds some spacing */
-
-        }
+            overflow-wrap: break-word; /* Alternative word wrapping */
+            text-overflow: ellipsis; /* Truncates text with "..." */
+            vertical-align: top; /* Aligns text properly */
+        }    
 
     </style>
 </head>
