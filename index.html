@@ -159,6 +159,10 @@
 
         fetchData(); // Load initial data
 
+        function cleanData(data) {
+            return data.map(row => row.map(cell => cell.trim())); // Trim spaces
+        }
+
     </script>
 
     
