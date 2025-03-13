@@ -49,6 +49,15 @@
         .nav {
             margin-top: 50px;
         }
+        table.dataTable thead th {
+        position: relative;
+        }
+
+        table.dataTable thead th::after, 
+        table.dataTable thead th::before {
+            color: white !important; /* Change arrow color */
+            opacity: 1; /* Make sure it's visible */
+        }
     </style>
 </head>
 <body>
