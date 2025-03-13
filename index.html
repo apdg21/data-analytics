@@ -121,51 +121,74 @@
         let currentBrand = "Baibe Official";
 
         function fetchData() {
-            let brand = document.getElementById("brandSelect").value;
-            let startDate = document.getElementById("startDate").value;
-            let endDate = document.getElementById("endDate").value;
-            
-            let url = `${appScriptUrl}?brand=${encodeURIComponent(brand)}`;
-            if (startDate) url += `&startDate=${encodeURIComponent(startDate)}`;
-            if (endDate) url += `&endDate=${encodeURIComponent(endDate)}`;
+    let brand = document.getElementById("brandSelect").value;
+    let startDate = document.getElementById("startDate").value;
+    let endDate = document.getElementById("endDate").value;
+    
+    let url = `${appScriptUrl}?brand=${encodeURIComponent(brand)}`;
+    if (startDate) url += `&startDate=${encodeURIComponent(startDate)}`;
+    if (endDate) url += `&endDate=${encodeURIComponent(endDate)}`;
 
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert(data.error);
-                        return;
-                    }
-                    document.getElementById("dailyTable").innerHTML = createTableHtml(data.daily);
-                    document.getElementById("weeklyTable").innerHTML = createTableHtml(data.weekly);
-                    document.getElementById("monthlyTable").innerHTML = createTableHtml(data.monthly);
-                    
-                   // Initialize DataTables AFTER tables are inserted
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            // Clear and recreate tables
+            document.getElementById("dailyTable").innerHTML = createTableHtml(data.daily);
+            document.getElementById("weeklyTable").innerHTML = createTableHtml(data.weekly);
+            document.getElementById("monthlyTable").innerHTML = createTableHtml(data.monthly);
+
+            // Destroy existing DataTables instances before re-initializing
+            $('#dailyTable table, #weeklyTable table, #monthlyTable table').each(function() {
+                if ($.fn.DataTable.isDataTable(this)) {
+                    $(this).DataTable().destroy();
+                }
+            });
+
+            // Reinitialize DataTables
             $('#dailyTable table, #weeklyTable table, #monthlyTable table').DataTable({
                 "paging": true,
                 "searching": true,
                 "ordering": true,
-                "order": []
+                "order": [], // No default sorting
+                "lengthMenu": [10, 25, 50, 100] // Allows users to choose number of rows
             });
         })
         .catch(error => console.error("Error fetching data:", error));
-        }
+    }
+
 
         function createTableHtml(data) {
-            if (!data || data.length === 0) {
-                return "<p>No data available.</p>";
-            }
-            let tableHtml = '<div class="table-responsive"><table class="table table-bordered table-striped">';
-            for (let i = 0; i < data.length; i++) {
-                tableHtml += '<tr>';
-                for (let j = 0; j < data[i].length; j++) {
-                    tableHtml += '<td>' + data[i][j] + '</td>';
-                }
-                tableHtml += '</tr>';
-            }
-            tableHtml += '</table></div>';
-            return tableHtml;
+    if (!data || data.length === 0) {
+        return "<p>No data available.</p>";
+    }
+
+    let tableHtml = '<div class="table-responsive"><table class="table table-bordered table-striped">';
+
+    // Add table head (first row as headers)
+    tableHtml += '<thead><tr>';
+    for (let j = 0; j < data[0].length; j++) {
+        tableHtml += '<th>' + data[0][j] + '</th>';
+    }
+    tableHtml += '</tr></thead>';
+
+    // Add table body
+    tableHtml += '<tbody>';
+    for (let i = 1; i < data.length; i++) { // Skip header row
+        tableHtml += '<tr>';
+        for (let j = 0; j < data[i].length; j++) {
+            tableHtml += '<td>' + data[i][j] + '</td>';
         }
+        tableHtml += '</tr>';
+    }
+    tableHtml += '</tbody></table></div>';
+
+    return tableHtml;
+}
 
         fetchData(); // Load initial data
 
