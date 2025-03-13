@@ -119,60 +119,62 @@
         let currentBrand = "Baibe Official";
 
         function fetchData() {
-            let brand = document.getElementById("brandSelect").value;
-            if (!brand) {
-                console.log("No brand selected, skipping fetch.");
+    let brand = document.getElementById("brandSelect").value;
+    if (!brand) {
+        console.log("No brand selected, skipping fetch.");
+        return;
+    }
+    let startDate = document.getElementById("startDate").value;
+    let endDate = document.getElementById("endDate").value;
+
+    let url = `${appScriptUrl}?brand=${encodeURIComponent(brand)}`;
+    if (startDate) url += `&startDate=${encodeURIComponent(startDate)}`;
+    if (endDate) url += `&endDate=${encodeURIComponent(endDate)}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
                 return;
             }
-            let startDate = document.getElementById("startDate").value;
-            let endDate = document.getElementById("endDate").value;
 
-            let url = `<span class="math-inline">\{appScriptUrl\}?brand\=</span>{encodeURIComponent(brand)}`;
-            if (startDate) url += `&startDate=${encodeURIComponent(startDate)}`;
-            if (endDate) url += `&endDate=${encodeURIComponent(endDate)}`;
+            document.getElementById("dailyTable").innerHTML = createTableHtml(data.daily);
+            document.getElementById("weeklyTable").innerHTML = createTableHtml(data.weekly);
+            document.getElementById("monthlyTable").innerHTML = createTableHtml(data.monthly);
 
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert(data.error);
-                        return;
-                    }
-
-                    document.getElementById("dailyTable").innerHTML = createTableHtml(data.daily);
-                    document.getElementById("weeklyTable").innerHTML = createTableHtml(data.weekly);
-                    document.getElementById("monthlyTable").innerHTML = createTableHtml(data.monthly);
-
-                    <span class="math-inline">\('\#dailyTable table, \#weeklyTable table, \#monthlyTable table'\)\.each\(function\(\) \{
-if \(</span>.fn.DataTable.isDataTable(this)) {
+            // Delay DataTable initialization to ensure the DOM is updated
+            setTimeout(function() {
+                $('#dailyTable table, #weeklyTable table, #monthlyTable table').each(function() {
+                        if ($.fn.DataTable.isDataTable(this)) {
                             $(this).DataTable().destroy();
                         }
                     });
-
-                    $('#dailyTable table').DataTable({
-                        "paging": true,
-                        "searching": true,
-                        "ordering": true,
-                        "order": [],
-                        "lengthMenu": [10, 25, 50, 100]
-                    });
-                    $('#weeklyTable table').DataTable({
-                        "paging": true,
-                        "searching": true,
-                        "ordering": true,
-                        "order": [],
-                        "lengthMenu": [10, 25, 50, 100]
-                    });
-                    $('#monthlyTable table').DataTable({
-                        "paging": true,
-                        "searching": true,
-                        "ordering": true,
-                        "order": [],
-                        "lengthMenu": [10, 25, 50, 100]
-                    });
-                })
-                .catch(error => console.error("Error fetching data:", error));
-        }
+                $('#dailyTable table').DataTable({
+                    "paging": true,
+                    "searching": true,
+                    "ordering": true,
+                    "order": [],
+                    "lengthMenu": [10, 25, 50, 100]
+                });
+                $('#weeklyTable table').DataTable({
+                    "paging": true,
+                    "searching": true,
+                    "ordering": true,
+                    "order": [],
+                    "lengthMenu": [10, 25, 50, 100]
+                });
+                $('#monthlyTable table').DataTable({
+                    "paging": true,
+                    "searching": true,
+                    "ordering": true,
+                    "order": [],
+                    "lengthMenu": [10, 25, 50, 100]
+                });
+            }, 10); // 10 millisecond delay, you can adjust as needed.
+        })
+        .catch(error => console.error("Error fetching data:", error));
+}
 
         function createTableHtml(data) {
             if (!data || data.length === 0 || !data[0]) {
