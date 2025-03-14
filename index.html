@@ -52,11 +52,27 @@
         position: relative;
         }
 
-        table.dataTable thead tr th.sorting::after, 
-        table.dataTable thead tr th.sorting::before {
-            color: white !important; /* Change arrow color */
-            opacity: 1; /* Make sure it's visible */
+        /* Default state: Hide arrows until column is hovered or sorted */
+        table.dataTable thead tr th::before,
+        table.dataTable thead tr th::after {
+            color: transparent !important; /* Hide by default */
         }
+
+        /* Show arrows when hovering over a column */
+        table.dataTable thead tr th:hover::before,
+        table.dataTable thead tr th:hover::after {
+            color: rgba(255, 255, 255, 0.5) !important; /* Light white on hover */
+        }
+
+        /* Show only the active sorting arrow */
+        table.dataTable thead tr th.sorting_asc::before {
+            color: white !important; /* White arrow when sorted ascending */
+        }
+
+        table.dataTable thead tr th.sorting_desc::after {
+            color: white !important; /* White arrow when sorted descending */
+        }
+
     </style>
 </head>
 <body>
